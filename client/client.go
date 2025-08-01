@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -66,7 +68,25 @@ func main() {
 		log.Fatal("Error reading message:", err)
 	}
 
-	fmt.Printf("Received from server: %s\n", message)
+	// Create JSON structure to hold the received message
+	msg := struct {
+		Content string `json:"message"`
+	}{
+		Content: message,
+	}
+
+	// Marshal the message into JSON format with indentation
+	jsonData, err := json.MarshalIndent(msg, "", "  ")
+	if err != nil {
+		log.Fatal("JSON marshaling error:", err)
+	}
+
+	// Write the JSON to a file
+	if err := os.WriteFile("received_message.json", jsonData, 0644); err != nil {
+		log.Fatal("Error writing to file:", err)
+	}
+
+	log.Println("Received message saved to received_message.json")
 }
 
 func readTextMessage(r *bufio.Reader) (string, error) {

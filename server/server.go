@@ -33,6 +33,12 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check for proper WebSocket version
+	if r.Header.Get("Sec-WebSocket-Version") != "13" {
+		http.Error(w, "WebSocket version not supported", http.StatusUpgradeRequired)
+		return
+	}
+
 	secWebSocketKey := r.Header.Get("Sec-WebSocket-Key")
 	if secWebSocketKey == "" {
 		http.Error(w, "Missing Sec-WebSocket-Key", http.StatusBadRequest)
